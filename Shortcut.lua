@@ -15,7 +15,7 @@ function UILib:CreateButton(props)
     Button.Visible = props.Visible or true
 
     local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0.5, 0) -- Makes the button a full circle
+    UICorner.CornerRadius = UDim.new(0.5, 0)
     UICorner.Parent = Button
 
     local dragging, dragInput, dragStart, startPos
@@ -61,10 +61,6 @@ function UILib:CreateButton(props)
             props.OnClick()
         end
     end)
-    
-    function UILib:SetVisibility(visible)
-        Button.Visible = visible
-    end
 
     return Button
 end
