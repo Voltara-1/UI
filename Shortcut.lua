@@ -11,12 +11,23 @@ function UILib:CreateButton(props)
     Button.Position = props.Position or UDim2.new(0.5, 0, 0.5, 0)
     Button.AnchorPoint = props.AnchorPoint or Vector2.new(0.5, 0.5)
     Button.Text = props.Text or "Button"
-    Button.Parent = ScreenGui
+    Button.BackgroundColor3 = Color3.fromRGB(26, 26, 36)
     Button.Visible = props.Visible or true
+    Button.Parent = ScreenGui
 
     local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0.5, 0)
     UICorner.Parent = Button
+
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Thickness = 2
+    UIStroke.Color = Color3.fromRGB(42, 42, 58)
+    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    UIStroke.Parent = Button
+
+    function Button:SetStrokeColor(color)
+        UIStroke.Color = color
+    end
 
     local dragging, dragInput, dragStart, startPos
 
