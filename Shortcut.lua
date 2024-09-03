@@ -1,48 +1,36 @@
-local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
+local DraggableButtonLib = {}
 
-local UILib = {}
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = CoreGui
-
-function UILib:CreateButton(props)
+function DraggableButtonLib:CreateButton()
+    local ScreenGui = Instance.new("ScreenGui")
     local Button = Instance.new("TextButton")
-    Button.Size = props.Size or UDim2.new(0, 100, 0, 100)
-    Button.Position = props.Position or UDim2.new(0.5, 0, 0.5, 0)
-    Button.AnchorPoint = props.AnchorPoint or Vector2.new(0.5, 0.5)
-    Button.Text = props.Text or "Button"
-    Button.BackgroundColor3 = Color3.fromRGB(26, 26, 36)
-    Button.Visible = props.Visible or true
+    local UICorner = Instance.new("UICorner")
+    local UIStroke = Instance.new("UIStroke")
+
+    ScreenGui.Parent = game.CoreGui
+
+    Button.Size = UDim2.new(0, 30, 0, 30)
+    Button.Position = UDim2.new(0.5, -15, 0.5, -15)
+    Button.AnchorPoint = Vector2.new(0.5, 0.5)
+    Button.Text = "Click"
+    Button.Visible = true
     Button.Parent = ScreenGui
 
-    local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0.5, 0)
     UICorner.Parent = Button
 
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.Thickness = 2
-    UIStroke.Color = Color3.fromRGB(42, 42, 58)
-    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    UIStroke.Thickness = 3
+    UIStroke.Color = Color3.fromRGB(255, 255, 255)
     UIStroke.Parent = Button
-
-    function Button:SetStrokeColor(color)
-        UIStroke.Color = color
-    end
 
     local dragging, dragInput, dragStart, startPos
 
     local function update(input)
         local delta = input.Position - dragStart
-        Button.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
+        Button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 
     Button.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = Button.Position
@@ -56,24 +44,44 @@ function UILib:CreateButton(props)
     end)
 
     Button.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
         end
     end)
 
-    UserInputService.InputChanged:Connect(function(input)
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             update(input)
         end
     end)
 
-    Button.TouchTap:Connect(function()
-        if props.OnClick then
-            props.OnClick()
-        end
-    end)
+    local buttonMetatable = {
+        __index = function(_, key)
+            if key == "StrokeColor" then
+                return UIStroke.Color
+            else
+                return Button[key]
+            end
+        end,
 
-    return Button
+        __newindex = function(_, key, value)
+            if key == "Visible" then
+                Button.Visible = value
+            elseif key == "Size" then
+                Button.Size = value
+            elseif key == "Position" then
+                Button.Position = value
+            elseif key == "Text" then
+                Button.Text = value
+            elseif key == "StrokeColor" then
+                UIStroke.Color = Color3.fromRGB(value[1], value[2], value[3])
+            else
+                rawset(Button, key, value)
+            end
+        end,
+    }
+
+    return setmetatable({}, buttonMetatable)
 end
 
-return UILib
+return DraggableButtonLib
