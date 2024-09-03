@@ -19,6 +19,7 @@ function DraggableButtonLib:CreateButton()
     UICorner.Parent = Button
 
     UIStroke.Thickness = 3
+    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     UIStroke.Color = Color3.fromRGB(255, 255, 255)
     UIStroke.Parent = Button
 
